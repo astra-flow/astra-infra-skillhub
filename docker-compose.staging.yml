@@ -12,6 +12,10 @@
 services:
   server:
     image: skillhub-server:staging
+    # 上限即堆依据（Dockerfile 的 -XX:MaxRAMPercentage=75.0），与 compose.release.yml 同档；
+    # 口径见 astra-devops docs/ops-runbook.md 2.2 第 7 条
+    mem_limit: 1024m
+    mem_reservation: 512m
     ports:
       - "8080:8080"
     environment:
@@ -62,6 +66,8 @@ services:
 
   web:
     image: nginx:alpine
+    mem_limit: 128m
+    mem_reservation: 16m
     ports:
       - "80:80"
     volumes:
