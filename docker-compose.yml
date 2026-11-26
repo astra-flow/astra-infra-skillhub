@@ -1,6 +1,10 @@
+# 内存上限口径与取值规则见 astra-devops docs/ops-runbook.md 2.2 第 7 条：
+# 按 cgroup memory.stat 的 anon（真实进程占用）留 ≥2× 余量，不用 docker stats 总量。
 services:
   skill-scanner:
     build: ./scanner
+    mem_limit: 512m
+    mem_reservation: 128m
     ports:
       - "8000:8000"
     environment:
@@ -15,6 +19,9 @@ services:
 
   postgres:
     image: ${POSTGRES_IMAGE:-postgres:16-alpine}
+    # anon 实测 16 MiB，但需为 shared_buffers(默认 128M) + 每连接 work_mem 留位
+    mem_limit: 512m
+    mem_reservation: 128m
     ports:
       - "5432:5432"
     environment:
@@ -31,6 +38,8 @@ services:
 
   redis:
     image: ${REDIS_IMAGE:-redis:7-alpine}
+    mem_limit: 256m
+    mem_reservation: 64m
     ports:
       - "127.0.0.1:6379:6379"
     healthcheck:
@@ -41,6 +50,9 @@ services:
 
   minio:
     image: ${MINIO_IMAGE:-minio/minio:latest}
+    # 本机未跑 minio，按其 Go 服务端稳态估值（对象索引与并发上传缓冲需留位）
+    mem_limit: 1024m
+    mem_reservation: 256m
     ports:
       - "9000:9000"
       - "9001:9001"

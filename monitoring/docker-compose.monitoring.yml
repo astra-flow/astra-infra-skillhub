@@ -1,6 +1,10 @@
+# 内存上限口径与取值规则见 astra-devops docs/ops-runbook.md 2.2 第 7 条。
+# 本栈未在本机实测：Prometheus 上限需覆盖 TSDB 内存映射与抓取缓冲，Grafana 按 Go 服务估值。
 services:
   prometheus:
     image: ${PROMETHEUS_IMAGE:-prom/prometheus:latest}
+    mem_limit: 1024m
+    mem_reservation: 256m
     ports:
       - "9090:9090"
     volumes:
@@ -8,6 +12,8 @@ services:
 
   grafana:
     image: ${GRAFANA_IMAGE:-grafana/grafana:latest}
+    mem_limit: 512m
+    mem_reservation: 128m
     ports:
       - "3001:3000"
     environment:
